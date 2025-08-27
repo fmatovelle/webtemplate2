@@ -1,77 +1,65 @@
-// script.js
-
-document.addEventListener("DOMContentLoaded", () => {
-  // Scroll suave desde el botón
-  const scrollBtn = document.querySelector(".btn-primary");
-  scrollBtn.addEventListener("click", () => {
-    document.querySelector("#features").scrollIntoView({ behavior: "smooth" });
-  });
-
-  // Animaciones al hacer scroll
-  const revealElements = document.querySelectorAll(".feature, .about, .contact");
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("visible");
-        }
-      });
-    },
-    { threshold: 0.1 }
-  );
-  revealElements.forEach((el) => {
-    el.classList.add("hidden");
-    observer.observe(el);
-  });
-
-  // Botón de modo oscuro
-  const darkToggle = document.createElement("button");
-  darkToggle.textContent = "🌓";
-  darkToggle.style.position = "fixed";
-  darkToggle.style.bottom = "20px";
-  darkToggle.style.right = "20px";
-  darkToggle.style.padding = "0.5rem 1rem";
-  darkToggle.style.border = "none";
-  darkToggle.style.borderRadius = "8px";
-  darkToggle.style.cursor = "pointer";
-  darkToggle.style.zIndex = "1001";
-  darkToggle.style.backgroundColor = "#eee";
-  document.body.appendChild(darkToggle);
-
-  // Detectar modo del sistema o preferencia guardada
-  const storedTheme = localStorage.getItem("theme");
-  if (storedTheme === "dark") {
-    document.body.classList.add("dark");
-  } else if (storedTheme === "light") {
-    document.body.classList.remove("dark");
-  } else {
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    if (prefersDark) {
-      document.body.classList.add("dark");
-    }
-  }
-
-  // Guardar el estado al hacer clic
-  darkToggle.addEventListener("click", () => {
-    const isDark = document.body.classList.toggle("dark");
-    localStorage.setItem("theme", isDark ? "dark" : "light");
-  });
+// Smooth scroll to features section
+const scrollBtn = document.querySelector(".btn-primary");
+scrollBtn?.addEventListener("click", () => {
+  document.querySelector("#features")?.scrollIntoView({ behavior: "smooth" });
 });
 
-// Navbar shrink al hacer scroll
+// Reveal elements on scroll
+const revealElements = document.querySelectorAll(".feature, .about, .contact");
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add("visible");
+    }
+  });
+}, { threshold: 0.1 });
+
+revealElements.forEach((el) => {
+  el.classList.add("hidden");
+  observer.observe(el);
+});
+
+// Theme toggle logic
+const toggle = document.getElementById("dark-toggle");
+const icon = document.getElementById("theme-icon");
+
+function applyTheme(theme) {
+  document.body.classList.toggle("dark", theme === "dark");
+  localStorage.setItem("theme", theme);
+
+  // Actualiza el ícono dinámicamente según tema
+  icon.innerHTML = theme === "dark"
+    ? `<path d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z"/>` // luna
+    : `<circle cx="12" cy="12" r="5"/>
+       <path d="M12 1v2M12 21v2
+                M4.22 4.22l1.42 1.42
+                M18.36 18.36l1.42 1.42
+                M1 12h2M21 12h2
+                M4.22 19.78l1.42-1.42
+                M18.36 5.64l1.42-1.42"/>`; // sol
+}
+
+
+// Load stored or system preference
+const userPref = localStorage.getItem("theme");
+const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+const initialTheme = userPref || (systemPrefersDark ? "dark" : "light");
+applyTheme(initialTheme);
+
+// Toggle theme on click
+toggle?.addEventListener("click", () => {
+  const isDark = document.body.classList.contains("dark");
+  applyTheme(isDark ? "light" : "dark");
+});
+
+// Navbar shrink on scroll
 window.addEventListener("scroll", () => {
   const navbar = document.querySelector(".navbar");
-  if (window.scrollY > 10) {
-    navbar.classList.add("scrolled");
-  } else {
-    navbar.classList.remove("scrolled");
-  }
+  navbar.classList.toggle("scrolled", window.scrollY > 10);
 });
 
-// Eliminar preloader tras la carga
+// Preloader removal
 window.addEventListener("load", () => {
   const loader = document.getElementById("preloader");
-  if (loader) {
-    setTimeout(() => loader.remove(), 1200);
-  }
+  if (loader) setTimeout(() => loader.remove(), 1200);
 });
